@@ -6,10 +6,10 @@ import (
 )
 
 func isValidSerialNumber(serial string) bool {
-	if len(serial) != 10 {
+	if len(serial) != 24 {
 		return false
 	}
-
+	//203037333301059417812603
 	for _, ch := range serial {
 		if ch < '0' || ch > '9' {
 			return false

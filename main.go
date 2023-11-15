@@ -22,7 +22,6 @@ func main() {
 			fmt.Printf("Error accepting connection: %s\n", err)
 			continue
 		}
-
 		go ftp.HandleConnection(conn)
 	}
 }

@@ -12,6 +12,7 @@ func HandleConnection(conn net.Conn) {
 
 	fmt.Fprintf(conn, "220 Welcome to the TMS\r\n")
 	serialNumber := ""
+	isLoggedIn := false
 
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
@@ -23,23 +24,47 @@ func HandleConnection(conn net.Conn) {
 
 		switch cmd {
 		case "USER":
-			fmt.Fprintf(conn, "331 User name okay, need password.\r\n")
-		case "PASS":
-			fmt.Fprintf(conn, "230 User logged in, proceed.\r\n")
-		case "CWD":
 			if len(parts) < 2 {
 				fmt.Fprintf(conn, "501 Syntax error in parameters or arguments.\r\n")
 			} else {
 				if isValidSerialNumber(parts[1]) {
 					serialNumber = parts[1]
-					fmt.Fprintf(conn, "250 Serial number changed to %s\r\n", serialNumber)
+					fmt.Fprintf(conn, "331 User name okay, need password.\r\n")
 				} else {
-					fmt.Fprintf(conn, "550 Requested action not taken. Invalid serial number.\r\n")
+					fmt.Fprintf(conn, "530 Not logged in. Invalid user name.\r\n")
+				}
+			}
+		case "PASS":
+			if len(parts) < 2 {
+				fmt.Fprintf(conn, "501 Syntax error in parameters or arguments.\r\n")
+			} else {
+				if parts[1] == "test" {
+					isLoggedIn = true
+					fmt.Fprintf(conn, "230 User logged in, proceed.\r\n")
+				} else {
+					fmt.Fprintf(conn, "530 Not logged in. Invalid password.\r\n")
+				}
+			}
+		case "PWD":
+			if !isLoggedIn {
+				fmt.Fprintf(conn, "530 Not logged in.\r\n")
+			} else {
+				fmt.Fprintf(conn, "257 \"/\" is the current directory.\r\n")
+			}
+		case "TYPE":
+			if len(parts) < 2 {
+				fmt.Fprintf(conn, "501 Syntax error in parameters or arguments.\r\n")
+			} else {
+				typeCode := strings.ToUpper(parts[1])
+				if typeCode == "I" { //Passive mode
+					fmt.Fprintf(conn, "200 Type set to I.\r\n")
+				} else {
+					fmt.Fprintf(conn, "504 Command not implemented for that parameter.\r\n")
 				}
 			}
 		case "LIST":
-			if serialNumber == "" {
-				fmt.Fprintf(conn, "550 Requested action not taken. No serial number selected.\r\n")
+			if !isLoggedIn {
+				fmt.Fprintf(conn, "530 Not logged in.\r\n")
 			} else {
 				files := listFilesBySerialNumber(serialNumber)
 				for _, file := range files {
@@ -47,6 +72,22 @@ func HandleConnection(conn net.Conn) {
 				}
 				fmt.Fprintf(conn, "226 Listing completed.\r\n")
 			}
+		case "CWD":
+			if len(parts) < 2 {
+				fmt.Fprintf(conn, "501 Syntax error in parameters or arguments.\r\n")
+			} else {
+				serialNumber := strings.TrimLeft(parts[1], "/")
+				if isValidSerialNumber(serialNumber) {
+					fmt.Fprintf(conn, "250 Serial number changed to %s\r\n", serialNumber)
+				} else {
+					fmt.Fprintf(conn, "550 Requested action not taken. Invalid serial number.\r\n")
+				}
+			}
+		case "PASV":
+			host := "167.99.33.213"
+			port := 8001
+			fmt.Fprintf(conn, "227 Entering Passive Mode (%s,%d,%d).\r\n",
+				strings.Replace(host, ".", ",", -1), port/256, port%256)
 		case "RETR":
 			if len(parts) < 2 {
 				fmt.Fprintf(conn, "501 Syntax error in parameters or arguments.\r\n")
