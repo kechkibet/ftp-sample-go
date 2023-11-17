@@ -21,8 +21,8 @@ func isValidSerialNumber(serial string) bool {
 
 func getFileMap() map[string]string {
 	return map[string]string{
-		"file1.txt": "SGVsbG8sIFdvcmxkIQ==",         // "Hello, World!" in base64
-		"file2.txt": "VGhpcyBpcyBhIHNhbXBsZSB0ZXh0", // "This is a sample text" in base64
+		"hanan.txt":   "SGkKCk15IG5hbWUgaXMgSGFuYW4=",
+		"meshack.txt": "TmlhamUsCk5haXR3YSBtZXNoYWNrCgpXZSByb2NrISE=",
 	}
 }
 
