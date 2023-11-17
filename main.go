@@ -22,6 +22,15 @@ func main() {
 			fmt.Printf("Error accepting connection: %s\n", err)
 			continue
 		}
+
+		// Extract the client's IP address and port
+		clientAddr := conn.RemoteAddr()
+		clientIP := clientAddr.(*net.TCPAddr).IP
+		clientPort := clientAddr.(*net.TCPAddr).Port
+
+		fmt.Printf("Client connected from IP: %s, Port: %d\n", clientIP, clientPort)
+
+		// Now, you can pass conn to your FTP handling function
 		go ftp.HandleConnection(conn)
 	}
 }

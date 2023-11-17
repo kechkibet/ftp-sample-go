@@ -19,17 +19,30 @@ func isValidSerialNumber(serial string) bool {
 	return true
 }
 
+func getFileMap() map[string]string {
+	return map[string]string{
+		"file1.txt": "SGVsbG8sIFdvcmxkIQ==",         // "Hello, World!" in base64
+		"file2.txt": "VGhpcyBpcyBhIHNhbXBsZSB0ZXh0", // "This is a sample text" in base64
+	}
+}
+
 func listFilesBySerialNumber(serialNumber string) []string {
-	// Replace this block with your logic for listing files by serial number
-	files := []string{"file1.txt", "file2.txt"} // Dummy file list
+	fileMap := getFileMap()
+
+	// Extract file names from the map
+	var files []string
+	for fileName := range fileMap {
+		files = append(files, fileName)
+	}
+
+	// You can add your logic here for filtering or processing based on serialNumber
+	// For now, it returns all file names
+
 	return files
 }
 
 func getFileBytes(fileName string) ([]byte, error) {
-	fileMap := map[string]string{
-		"sample1.txt": "SGVsbG8sIFdvcmxkIQ==",         // "Hello, World!" in base64
-		"sample2.txt": "VGhpcyBpcyBhIHNhbXBsZSB0ZXh0", // "This is a sample text" in base64
-	}
+	fileMap := getFileMap()
 
 	base64Content, exists := fileMap[fileName]
 	if !exists {
