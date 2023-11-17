@@ -3,6 +3,7 @@ package ftp
 import (
 	"encoding/base64"
 	"fmt"
+	"tms/zipper"
 )
 
 func isValidSerialNumber(serial string) bool {
@@ -20,10 +21,16 @@ func isValidSerialNumber(serial string) bool {
 }
 
 func getFileMap() map[string]string {
-	return map[string]string{
-		"hanan.txt":   "SGkKCk15IG5hbWUgaXMgSGFuYW4=",
-		"meshack.txt": "TmlhamUsCk5haXR3YSBtZXNoYWNrCgpXZSByb2NrISE=",
+	//return map[string]string{
+	//	"hanan.txt":   "SGkKCk15IG5hbWUgaXMgSGFuYW4=",
+	//	"meshack.txt": "TmlhamUsCk5haXR3YSBtZXNoYWNrCgpXZSByb2NrISE=",
+	//}
+	fileMap, err := zipper.ListTopLevelFilesWithBase64("Files.zip")
+	if err != nil {
+		fmt.Println("There was an error reading the zip file...")
+		return map[string]string{}
 	}
+	return fileMap
 }
 
 func listFilesBySerialNumber(serialNumber string) []string {
